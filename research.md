@@ -163,3 +163,41 @@ Sequence evidence: frontend form handler and client, backend order controller an
 [^amqp-version]: [spring-boot v2.7.18/spring-boot-project/spring-boot-dependencies/build.gradle:1713-1725](https://github.com/spring-projects/spring-boot/blob/v2.7.18/spring-boot-project/spring-boot-dependencies/build.gradle#L1713-L1725); [spring-boot v2.7.18/gradle.properties:10](https://github.com/spring-projects/spring-boot/blob/v2.7.18/gradle.properties#L10).
 [^amqp-mapper]: [spring-amqp v2.4.17/spring-amqp/src/main/java/org/springframework/amqp/support/converter/Jackson2JsonMessageConverter.java:45-60](https://github.com/spring-projects/spring-amqp/blob/v2.4.17/spring-amqp/src/main/java/org/springframework/amqp/support/converter/Jackson2JsonMessageConverter.java#L45-L60).
 [^jackson-unsupported]: [jackson-databind 2.13.5/src/main/java/com/fasterxml/jackson/databind/ObjectMapper.java:637-678](https://github.com/FasterXML/jackson-databind/blob/jackson-databind-2.13.5/src/main/java/com/fasterxml/jackson/databind/ObjectMapper.java#L637-L678); [jackson-databind 2.13.5/src/main/java/com/fasterxml/jackson/databind/util/BeanUtil.java:297-316](https://github.com/FasterXML/jackson-databind/blob/jackson-databind-2.13.5/src/main/java/com/fasterxml/jackson/databind/util/BeanUtil.java#L297-L316).
+
+## Dependencies
+
+The four repositories in this report were checked on 2026-11-25. The three application `main` revisions still matched the pins above; Docs was reviewed at `f412983392ddd1413fd7ef820b801cf8df1b7792`. All applications use Java 8 and `org.springframework.boot:spring-boot-starter-parent:2.7.18`. Docs contains Markdown only: it has no application dependency manifest, lockfile, or submodule.[^dep-docs][^dep-backend][^dep-frontend][^dep-worker]
+
+### Direct Maven dependencies
+
+In the table, `starter` names use group `org.springframework.boot` and the prefix `spring-boot-`. All versions are managed by the Spring Boot parent except the backend's explicit MySQL driver version. Scope defaults to `compile` unless shown otherwise.[^dep-backend][^dep-frontend][^dep-worker][^dep-bom]
+
+| Application | Boot starters (all `2.7.18`) | Other direct dependencies |
+| --- | --- | --- |
+| Backend | `starter-web`, `starter-data-jpa`, `starter-amqp`, `starter-validation`, `starter-test` (test) | `mysql:mysql-connector-java:8.0.33` (relocates to `com.mysql:mysql-connector-j:8.0.33`); `org.projectlombok:lombok:1.18.30` (optional).[^dep-backend][^dep-mysql] |
+| Frontend | `starter-web`, `starter-tomcat` (provided), `starter-test` (test) | `org.apache.tomcat.embed:tomcat-embed-jasper:9.0.83` (provided); `javax.servlet:jstl:1.2`; `org.projectlombok:lombok:1.18.30` (optional). The reviewed JSPs use JSTL; no browser-side library or CDN reference was found.[^dep-frontend][^dep-jsp] |
+| Worker | `starter`, `starter-amqp`, `starter-test` (test) | `org.projectlombok:lombok:1.18.30` (optional).[^dep-worker] |
+
+Each POM explicitly declares `org.springframework.boot:spring-boot-maven-plugin:2.7.18`, managed by the parent. Selected expected transitives from published metadata: Spring Framework `5.3.31` across all three; Jackson `2.13.5` through the web starter in backend and frontend; Spring AMQP `2.4.17` and RabbitMQ Java client `5.14.3` for backend and worker; Hibernate ORM `5.6.15.Final` and embedded Tomcat `9.0.83` for backend. Jackson's managed version does not establish that Jackson is present on the worker's runtime classpath.[^dep-backend][^dep-frontend][^dep-worker][^dep-bom][^dep-json][^dep-rabbit]
+
+### Build images and service connections
+
+| Component | Container dependencies | Runtime connections |
+| --- | --- | --- |
+| Backend | `maven:3.8-openjdk-8` → `eclipse-temurin:8-jre` | MySQL `mysql:3306/supplychain`, RabbitMQ `rabbitmq:5672`, and `vendor-rating-service` over HTTP only for the rating endpoint.[^dep-backend-image][^backend-settings][^backend-broker][^vendor-rating] |
+| Frontend | `maven:3.8-openjdk-8` → `tomcat:8.5-jdk8` | Server-side calls to `http://backend:8080/api` by default. The POM's provided Tomcat/Jasper versions are not the externally running Tomcat version; verify the connector port independently.[^frontend-docker][^frontend-settings][^frontend-env][^dep-frontend] |
+| Worker | `maven:3.8-openjdk-8` → `eclipse-temurin:8-jre` | RabbitMQ `rabbitmq:5672`; queue names must match the backend.[^dep-worker-image][^worker-settings][^backend-broker] |
+
+**Confidence and limits:** Direct dependencies and image tags are source declarations. Selected transitives are inferred from published artifact metadata; no Maven resolution, image SBOM, or advisory scan was performed. Image tags are not digest pins, and configured endpoints are not evidence of deployed versions or settings.[^dep-bom][^dep-backend-image][^frontend-docker][^dep-worker-image][^dep-docs]
+
+[^dep-docs]: [SupplyChain-Docs tree at f412983](https://github.com/luxu-ms/SupplyChain-Docs/tree/f412983392ddd1413fd7ef820b801cf8df1b7792); [research.md:23-30](https://github.com/luxu-ms/SupplyChain-Docs/blob/f412983392ddd1413fd7ef820b801cf8df1b7792/research.md#L23-L30).
+[^dep-backend]: [SupplyChain-Backend/pom.xml:8-92](https://github.com/luxu-ms/SupplyChain-Backend/blob/a21f57e84901bad3cf315de2a3520fa8fe34b911/pom.xml#L8-L92).
+[^dep-frontend]: [SupplyChain-Frontend/pom.xml:8-87](https://github.com/luxu-ms/SupplyChain-Frontend/blob/c613adbc961e0499d8f2ddb3e087ade7a9a40881/pom.xml#L8-L87).
+[^dep-worker]: [SupplyChain-Worker/pom.xml:8-65](https://github.com/luxu-ms/SupplyChain-Worker/blob/458f2bab94b08b3acd167feb04fc485a7ecf6133/pom.xml#L8-L65).
+[^dep-bom]: [Published Spring Boot 2.7.18 BOM](https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-dependencies/2.7.18/spring-boot-dependencies-2.7.18.pom).
+[^dep-mysql]: [MySQL Connector/J 8.0.33 relocation POM](https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.33/mysql-connector-java-8.0.33.pom).
+[^dep-jsp]: [SupplyChain-Frontend/src/main/webapp/WEB-INF/jsp/ tree](https://github.com/luxu-ms/SupplyChain-Frontend/tree/c613adbc961e0499d8f2ddb3e087ade7a9a40881/src/main/webapp/WEB-INF/jsp); [home.jsp:1-2](https://github.com/luxu-ms/SupplyChain-Frontend/blob/c613adbc961e0499d8f2ddb3e087ade7a9a40881/src/main/webapp/WEB-INF/jsp/home.jsp#L1-L2).
+[^dep-json]: [Spring Boot JSON starter POM](https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-starter-json/2.7.18/spring-boot-starter-json-2.7.18.pom); [Spring AMQP POM](https://repo.maven.apache.org/maven2/org/springframework/amqp/spring-amqp/2.4.17/spring-amqp-2.4.17.pom).
+[^dep-rabbit]: [Spring Rabbit 2.4.17 POM](https://repo.maven.apache.org/maven2/org/springframework/amqp/spring-rabbit/2.4.17/spring-rabbit-2.4.17.pom).
+[^dep-backend-image]: [SupplyChain-Backend/Dockerfile:6-20](https://github.com/luxu-ms/SupplyChain-Backend/blob/a21f57e84901bad3cf315de2a3520fa8fe34b911/Dockerfile#L6-L20).
+[^dep-worker-image]: [SupplyChain-Worker/Dockerfile:2-12](https://github.com/luxu-ms/SupplyChain-Worker/blob/458f2bab94b08b3acd167feb04fc485a7ecf6133/Dockerfile#L2-L12).
