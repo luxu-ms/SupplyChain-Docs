@@ -29,3 +29,7 @@ These requirements apply to the backend, frontend, and worker. The Java 8 baseli
 - Every web application must have automated browser tests (for example, Playwright or Selenium) that run in pull request CI. Failing tests block merge.
 - Cover critical user journeys and their important failure paths. For SupplyChain, cover dashboard loading, valid order submission, validation feedback, and the order appearing in the pending list. Cover inventory browsing and approval when the corresponding UI flows are available.
 - Use isolated test data, stable selectors, and condition-based waits rather than fixed sleeps. Assert outcomes the user can see, and retain traces or screenshots on failure.
+
+## Additional Updates
+
+- **UPDATE Nov 26:** All apps should use Azure Application Insights for monitoring.
