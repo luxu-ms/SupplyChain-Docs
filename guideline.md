@@ -2,9 +2,10 @@
 
 These requirements apply to the backend, frontend, and worker. The Java 8 baseline in [architecture.md](architecture.md) describes the reviewed source snapshot, not the standard for future changes.
 
-## Java baseline
+## Java and Spring Boot baseline
 
 - Use **Java 21 or later**. Set the Maven compiler's `release` to the project's supported Java version (at least 21) and use that version in local builds, CI, and runtime images. Verify framework, dependency, and servlet container compatibility when upgrading.
+- For new projects, use **Spring Boot 4.2.x** on **JDK 21 or 25**. As of November 26, 2026, [Spring Boot 4.2.0](https://github.com/spring-projects/spring-boot/releases/tag/v4.2.0) is the latest stable release.
 
 ## Java coding standards
 
