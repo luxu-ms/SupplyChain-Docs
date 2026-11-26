@@ -19,6 +19,22 @@ Source manifests and Docker tags are verified at the application pins recorded i
 
 All three POMs explicitly declare the parent-managed Spring Boot Maven plugin `2.7.18`. Published Maven metadata indicates Spring Framework `5.3.31` across the applications, Jackson `2.13.5` in the web applications, Spring AMQP `2.4.17` and RabbitMQ client `5.14.3` in backend and worker, and Hibernate `5.6.15.Final` plus embedded Tomcat `9.0.83` in backend. These are expected versions, not a resolved runtime inventory.[^b][^f][^w][^bom][^json][^rabbit]
 
+### Recommended baseline for new projects
+
+Use **Spring Boot 4.2.x** with **JDK 21 or 25** for new projects. As of November 26, 2026, **4.2.0** is the latest stable release.[^boot42-release] Keep the chosen JDK consistent in local development, CI, and runtime images. This is a recommendation for new projects, not a change to the Spring Boot 2.7.18 inventory above.
+
+Use the Spring Boot parent or BOM to manage library versions. The **4.2.0** BOM manages the following versions when those dependencies are used:[^boot42-bom]
+
+| Dependency | Managed version |
+| --- | --- |
+| Spring Framework | `7.1.0` |
+| Spring AMQP | `4.2.0` |
+| Jackson 3 / Jackson 2 BOMs | `3.1.8` / `2.21.8` |
+| Hibernate ORM | `7.4.15.Final` |
+| Apache Tomcat | `11.0.27` |
+| MySQL Connector/J | `26.10.0` |
+| Lombok | `1.18.48` |
+
 ### Footnotes
 
 [^d]: [SupplyChain-Docs tree at f412983](https://github.com/luxu-ms/SupplyChain-Docs/tree/f412983392ddd1413fd7ef820b801cf8df1b7792); [research.md:23-30](https://github.com/luxu-ms/SupplyChain-Docs/blob/f412983392ddd1413fd7ef820b801cf8df1b7792/research.md#L23-L30).
@@ -36,3 +52,5 @@ All three POMs explicitly declare the parent-managed Spring Boot Maven plugin `2
 [^mysql]: [MySQL 8.0.33 relocation POM](https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.33/mysql-connector-java-8.0.33.pom).
 [^json]: [Spring Boot JSON starter POM](https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-starter-json/2.7.18/spring-boot-starter-json-2.7.18.pom).
 [^rabbit]: [Spring Rabbit 2.4.17 POM](https://repo.maven.apache.org/maven2/org/springframework/amqp/spring-rabbit/2.4.17/spring-rabbit-2.4.17.pom).
+[^boot42-release]: [Spring Boot 4.2.0 release notes](https://github.com/spring-projects/spring-boot/releases/tag/v4.2.0).
+[^boot42-bom]: [Published Spring Boot 4.2.0 BOM](https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-dependencies/4.2.0/spring-boot-dependencies-4.2.0.pom).
